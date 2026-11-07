@@ -1,7 +1,7 @@
 #To reconnect, run: 2026.10.03
   codex resume 01a0ff0d-4564-7fe1-bc52-e68b7d18f78e
   gemini --resume c8e2b011-b8e0-45a5-9c5c-94367026b7af    
-# GDSEMR_ver_1.1001
+# GDSEMR_ver_1.2001
 
 JavaFX EMR prototype targeting Java 25 and JavaFX 25.
 
