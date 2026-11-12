@@ -4,23 +4,37 @@ import com.emr.gds.features.template.application.TemplateModel;
 import com.emr.gds.features.template.persistence.TemplateRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TemplateRepositoryTest {
 
+    @TempDir
+    Path tempDir;
+
     private TemplateRepository repo;
 
     @BeforeEach
     void setUp() {
-        repo = new TemplateRepository();
+        repo = new TemplateRepository(tempDir.resolve("emr_templates.db"));
     }
 
     @Test
     void testRepositoryInitializes() {
         assertNotNull(repo);
+        assertTrue(tempDir.resolve("emr_templates.db").toFile().isFile());
+    }
+
+    @Test
+    void testUsesTemporaryDatabaseInsteadOfProductionDatabase() {
+        Path productionDatabase = Path.of("app", "db", "emr_templates.db")
+            .toAbsolutePath()
+            .normalize();
+        assertNotEquals(productionDatabase, tempDir.resolve("emr_templates.db").toAbsolutePath().normalize());
     }
 
     @Test
