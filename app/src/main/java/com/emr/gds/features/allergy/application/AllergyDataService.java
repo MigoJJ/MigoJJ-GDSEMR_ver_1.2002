@@ -11,6 +11,19 @@ public class AllergyDataService {
 
     public List<SymptomItem> getSymptomItems() {
         return List.of(
+                new SymptomItem("Musculoskeletal", "Severe muscle pain or weakness", false),
+                new SymptomItem("Musculoskeletal", "Muscle aches or pain in the thighs, calves, or shoulders", false),
+
+                new SymptomItem("Liver-related", "Dark, cola-colored urine", false),
+                new SymptomItem("Liver-related", "Jaundice (yellowing of the eyes or skin)", false),
+                new SymptomItem("Liver-related", "Elevated liver enzymes (usually identified by a blood test without symptoms)", false),
+
+                new SymptomItem("Gastrointestinal", "Digestive symptoms: heartburn, nausea, abdominal pain, constipation, or diarrhea", false),
+
+                new SymptomItem("Other", "Severe fatigue or loss of appetite", false),
+                new SymptomItem("Other", "Fatigue or lack of energy", false),
+                new SymptomItem("Other", "Headache", false),
+
                 new SymptomItem("Skin reactions", "Rash", false),
                 new SymptomItem("Skin reactions", "Hives (raised, itchy spots)", false),
                 new SymptomItem("Skin reactions", "Itching", false),
@@ -40,6 +53,7 @@ public class AllergyDataService {
 
     public ObservableList<AllergyCause> getAllergyCauses() {
         return FXCollections.observableArrayList(
+                new AllergyCause("Statin medications"),
                 new AllergyCause("Penicillin & derivatives"),
                 new AllergyCause("Cephalosporins"),
                 new AllergyCause("Sulfa drugs"),

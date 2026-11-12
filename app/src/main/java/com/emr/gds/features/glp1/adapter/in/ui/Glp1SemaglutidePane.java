@@ -1,6 +1,7 @@
 package com.emr.gds.features.glp1.adapter.in.ui;
 
 import com.emr.gds.features.glp1.application.Glp1FormatterService;
+import com.emr.gds.features.glp1.application.Glp1FollowUpDateService;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.control.CheckBox;
@@ -84,7 +85,8 @@ public class Glp1SemaglutidePane extends VBox {
                 "Ozempic (semaglutide, SC weekly)",
                 "Wegovy (semaglutide, SC weekly)",
                 "Rybelsus (semaglutide, PO daily)",
-                "Mounjaro (tirzepatide, SC weekly)"
+                "Mounjaro (tirzepatide, SC weekly)",
+                "EPPE (SC weekly)"
         );
         cmbBrand.setPromptText("Select brand / route...");
         cmbBrand.setPrefWidth(260);
@@ -114,7 +116,8 @@ public class Glp1SemaglutidePane extends VBox {
                         "0.5 mg weekly",
                         "1.0 mg weekly",
                         "1.7 mg weekly",
-                        "2.4 mg weekly"
+                        "2.4 mg weekly",
+                        "7.2 mg weekly"
                 );
             } else if (brand.startsWith("Rybelsus")) {
                 cmbDose.getItems().setAll(
@@ -130,6 +133,14 @@ public class Glp1SemaglutidePane extends VBox {
                         "10.0 mg weekly",
                         "12.5 mg weekly",
                         "15.0 mg weekly (max)"
+                );
+            } else if (brand.startsWith("EPPE")) {
+                cmbDose.getItems().setAll(
+                        "2 mg weekly",
+                        "4 mg weekly",
+                        "6 mg weekly",
+                        "8 mg weekly",
+                        "10 mg weekly"
                 );
             }
         });
@@ -177,6 +188,9 @@ public class Glp1SemaglutidePane extends VBox {
         );
         cmbFollowUpInterval.setPromptText("Select interval...");
         cmbFollowUpInterval.setPrefWidth(250);
+        cmbFollowUpInterval.setOnAction(e -> dpNextFollowUp.setValue(
+                Glp1FollowUpDateService.calculateNextVisit(
+                        LocalDate.now(), cmbFollowUpInterval.getValue())));
 
         txtFollowUpNotes.setPromptText("Follow-up notes (e.g., monitor weight, HbA1c, GI symptoms...)");
         txtFollowUpNotes.setPrefRowCount(4);

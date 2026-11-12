@@ -176,14 +176,9 @@ public class IttiaApp extends Application {
         title.setStyle("-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;");
 
         Label subtitle = new Label(setupMode
-                ? "No password is set yet. Choose one to secure this EMR workspace."
-                : "Secure access to the EMR workspace.");
+                ? "Set a password to secure this single-clinician EMR workspace."
+                : "Enter the workspace password to continue.");
         subtitle.setStyle("-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 14px;");
-
-        TextField usernameField = new TextField();
-        usernameField.setPromptText("Username");
-        usernameField.setPrefWidth(360);
-        usernameField.setStyle("-fx-background-radius: 12; -fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.55);");
 
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText(setupMode ? "New password (min 6 characters)" : "Password");
@@ -204,9 +199,9 @@ public class IttiaApp extends Application {
         statusLabel.setStyle("-fx-text-fill: #facc15; -fx-font-size: 12px;");
 
         PasswordField effectiveConfirmField = setupMode ? confirmPasswordField : null;
-        loginButton.setOnAction(e -> handleLogin(usernameField, passwordField, effectiveConfirmField, setupMode, statusLabel, loginButton));
-        passwordField.setOnAction(e -> handleLogin(usernameField, passwordField, effectiveConfirmField, setupMode, statusLabel, loginButton));
-        confirmPasswordField.setOnAction(e -> handleLogin(usernameField, passwordField, effectiveConfirmField, setupMode, statusLabel, loginButton));
+        loginButton.setOnAction(e -> handleLogin(passwordField, effectiveConfirmField, setupMode, statusLabel, loginButton));
+        passwordField.setOnAction(e -> handleLogin(passwordField, effectiveConfirmField, setupMode, statusLabel, loginButton));
+        confirmPasswordField.setOnAction(e -> handleLogin(passwordField, effectiveConfirmField, setupMode, statusLabel, loginButton));
 
         VBox buttonRow = new VBox(loginButton);
         buttonRow.setAlignment(Pos.CENTER_LEFT);
@@ -215,7 +210,6 @@ public class IttiaApp extends Application {
         card.getChildren().add(badge);
         card.getChildren().add(title);
         card.getChildren().add(subtitle);
-        card.getChildren().add(usernameField);
         card.getChildren().add(passwordField);
         if (setupMode) {
             card.getChildren().add(confirmPasswordField);
@@ -230,13 +224,12 @@ public class IttiaApp extends Application {
         return new Scene(shell, 900, 600);
     }
 
-    private void handleLogin(TextField usernameField, PasswordField passwordField, PasswordField confirmPasswordField,
+    private void handleLogin(PasswordField passwordField, PasswordField confirmPasswordField,
                               boolean setupMode, Label statusLabel, Button loginButton) {
-        String username = usernameField.getText().trim();
         char[] password = passwordField.getText().toCharArray();
 
-        if (username.isEmpty() || password.length == 0) {
-            statusLabel.setText("Enter both username and password.");
+        if (password.length == 0) {
+            statusLabel.setText("Enter the workspace password.");
             return;
         }
 
@@ -264,7 +257,6 @@ public class IttiaApp extends Application {
 
         statusLabel.setText("Signing in & loading data...");
         loginButton.setDisable(true);
-        usernameField.setDisable(true);
         passwordField.setDisable(true);
         if (confirmPasswordField != null) {
             confirmPasswordField.setDisable(true);
@@ -285,7 +277,6 @@ public class IttiaApp extends Application {
         loadTask.setOnFailed(e -> {
             statusLabel.setText("Error loading data: " + loadTask.getException().getMessage());
             loginButton.setDisable(false);
-            usernameField.setDisable(false);
             passwordField.setDisable(false);
             if (confirmPasswordField != null) {
                 confirmPasswordField.setDisable(false);

@@ -92,7 +92,7 @@ public class TemplateRepository {
             ps.setString(2, content);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Failed to create template: " + e.getMessage());
+            throw new IllegalStateException("Could not create the template.", e);
         }
     }
 
@@ -104,7 +104,7 @@ public class TemplateRepository {
             ps.setInt(3, id);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Failed to update template: " + e.getMessage());
+            throw new IllegalStateException("Could not update the template.", e);
         }
     }
 
@@ -114,7 +114,7 @@ public class TemplateRepository {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Failed to delete template: " + e.getMessage());
+            throw new IllegalStateException("Could not delete the template.", e);
         }
     }
 

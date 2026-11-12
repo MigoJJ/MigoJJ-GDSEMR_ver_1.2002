@@ -115,7 +115,27 @@ public class AllergyController {
     }
 
     private void updateRowHighlight(TableRow<SymptomItem> row, SymptomItem item) {
-        row.setStyle((item != null && item.isSelected()) ? "-fx-background-color: #e8f6ff;" : "");
+        if (item == null) {
+            row.setStyle("");
+            return;
+        }
+
+        String color = item.isSelected() ? "#cfe8ff" : getCategoryColor(item.getCategory());
+        row.setStyle("-fx-background-color: " + color + ";");
+    }
+
+    private String getCategoryColor(String category) {
+        return switch (category) {
+            case "Skin reactions" -> "#fff4cc";
+            case "Swelling" -> "#fde2e4";
+            case "Respiratory symptoms" -> "#dff3e4";
+            case "Gastrointestinal" -> "#ffe8d6";
+            case "Musculoskeletal" -> "#e6e6fa";
+            case "Liver-related" -> "#fff0b3";
+            case "Other" -> "#e2f0fb";
+            case "Anaphylaxis" -> "#ffd6d6";
+            default -> "#f5f5f5";
+        };
     }
 
     private void setupCauseTable() {
@@ -145,6 +165,9 @@ public class AllergyController {
 
         if (templateMode == TemplateMode.DENY_ALL) {
             builder.append("""
+                    Category: All
+                    Symptoms: All denied symptoms
+
                     Patient explicitly denies ALL allergic symptoms including:
                     • Skin reactions, swelling, respiratory distress
                     • Gastrointestinal symptoms

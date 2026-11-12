@@ -103,10 +103,16 @@ public class TemplateEditController {
 
         if (repository == null) return;
 
-        if (selectedTemplate == null) {
-            repository.createTemplate(name, content);
-        } else {
-            repository.updateTemplate(selectedTemplate.getId(), name, content);
+        try {
+            if (selectedTemplate == null) {
+                repository.createTemplate(name, content);
+            } else {
+                repository.updateTemplate(selectedTemplate.getId(), name, content);
+            }
+        } catch (RuntimeException e) {
+            showAlert(Alert.AlertType.ERROR, "Save Failed",
+                    "Your template was not saved. Please try again. Details: " + e.getMessage());
+            return;
         }
 
         loadTemplates();
@@ -127,7 +133,13 @@ public class TemplateEditController {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            repository.deleteTemplate(selectedTemplate.getId());
+            try {
+                repository.deleteTemplate(selectedTemplate.getId());
+            } catch (RuntimeException e) {
+                showAlert(Alert.AlertType.ERROR, "Delete Failed",
+                        "Your template was not deleted. Please try again. Details: " + e.getMessage());
+                return;
+            }
             loadTemplates();
             handleNew();
         }

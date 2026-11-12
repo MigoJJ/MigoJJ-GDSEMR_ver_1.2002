@@ -135,7 +135,7 @@ public class JdbcClinicalLabRepository implements ClinicalLabRepository {
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error updating lab item: " + e.getMessage());
+            throw new IllegalStateException("Could not update the clinical lab item.", e);
         }
     }
 
@@ -166,7 +166,7 @@ public class JdbcClinicalLabRepository implements ClinicalLabRepository {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error inserting lab item: " + e.getMessage());
+            throw new IllegalStateException("Could not add the clinical lab item.", e);
         }
     }
 
@@ -179,7 +179,7 @@ public class JdbcClinicalLabRepository implements ClinicalLabRepository {
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("Error deleting lab item: " + e.getMessage());
+            throw new IllegalStateException("Could not delete the clinical lab item.", e);
         }
     }
 

@@ -172,7 +172,12 @@ public class ClinicalLabController implements Initializable {
             selected.setCategory(editCategory.getText());
             selected.setCodes(editCodes.getText());
             selected.setComments(editComments.getText());
-            database.updateItem(selected);
+            try {
+                database.updateItem(selected);
+            } catch (RuntimeException e) {
+                showPersistenceError("save changes", e);
+                return;
+            }
             labTable.refresh();
             showDetails(selected);
         }
@@ -290,7 +295,12 @@ public class ClinicalLabController implements Initializable {
 
         Optional<ClinicalLabItem> result = dialog.showAndWait();
         result.ifPresent(newItem -> {
-            database.insertItem(newItem);
+            try {
+                database.insertItem(newItem);
+            } catch (RuntimeException e) {
+                showPersistenceError("add the item", e);
+                return;
+            }
             loadData(); // Refresh the table
             labTable.getSelectionModel().select(newItem); // Select the newly added item
             showDetails(newItem); // Show details of newly added item
@@ -316,10 +326,23 @@ public class ClinicalLabController implements Initializable {
 
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            database.deleteItem(selected.getId());
+            try {
+                database.deleteItem(selected.getId());
+            } catch (RuntimeException e) {
+                showPersistenceError("delete the item", e);
+                return;
+            }
             loadData(); // Refresh the table
             clearDetails(); // Clear details panel
         }
+    }
+
+    private void showPersistenceError(String action, Exception cause) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Save Failed");
+        alert.setHeaderText("Could not " + action + ".");
+        alert.setContentText("Your change was not saved. Please try again. Details: " + cause.getMessage());
+        alert.showAndWait();
     }
 
     @FXML
