@@ -62,7 +62,7 @@ public class AllergyView extends BorderPane {
         searchField = new TextField();
         searchField.setPromptText("Search symptoms...");
         symptomTable = new TableView<>();
-        symptomTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        symptomTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         VBox leftPanel = new VBox(10, title, searchField, symptomTable);
         leftPanel.setPadding(new Insets(10));
         leftPanel.setPrefWidth(680);
