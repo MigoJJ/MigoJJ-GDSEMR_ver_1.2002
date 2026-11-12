@@ -681,7 +681,7 @@ public class ReferenceController implements Initializable {
         c2.setCellValueFactory(new PropertyValueFactory<>("contents"));
         TableColumn<ReferenceItem, String> c3 = new TableColumn<>("Directory Path");
         c3.setCellValueFactory(new PropertyValueFactory<>("directoryPath"));
-        previewTable.getColumns().addAll(c1, c2, c3);
+        previewTable.getColumns().addAll(List.of(c1, c2, c3));
         int previewCount = Math.min(50, importedItems.size());
         previewTable.setItems(FXCollections.observableArrayList(importedItems.subList(0, previewCount)));
 

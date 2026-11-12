@@ -72,7 +72,7 @@ public class TemplateEditController {
         ObservableList<TemplateModel> data = FXCollections.observableArrayList(templates);
         templateTable.setItems(data);
         nameColumn.setSortType(TableColumn.SortType.ASCENDING);
-        templateTable.getSortOrder().setAll(nameColumn);
+        templateTable.getSortOrder().setAll(List.of(nameColumn));
         templateTable.sort();
     }
 

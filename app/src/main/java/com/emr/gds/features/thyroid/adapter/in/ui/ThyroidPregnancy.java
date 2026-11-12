@@ -376,7 +376,7 @@ public class ThyroidPregnancy extends BorderPane {
         notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
 
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-        table.getColumns().addAll(conditionCol, tshCol, ft4Col, abCol, notesCol);
+        table.getColumns().addAll(List.of(conditionCol, tshCol, ft4Col, abCol, notesCol));
 
         // Data
         ObservableList<ThyroidPregnancyConditionRow> items = FXCollections.observableArrayList(

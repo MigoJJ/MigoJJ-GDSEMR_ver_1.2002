@@ -93,7 +93,7 @@ public class AllergyController {
         SortedList<SymptomItem> sortedSymptoms = new SortedList<>(filteredSymptoms);
         sortedSymptoms.comparatorProperty().bind(view.getSymptomTable().comparatorProperty());
 
-        view.getSymptomTable().getColumns().setAll(categoryCol, symptomCol);
+        view.getSymptomTable().getColumns().setAll(List.of(categoryCol, symptomCol));
         view.getSymptomTable().setItems(sortedSymptoms);
         view.getSymptomTable().setRowFactory(tv -> createSymptomRow());
     }
