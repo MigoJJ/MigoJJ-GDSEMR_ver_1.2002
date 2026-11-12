@@ -15,13 +15,22 @@ public class AppDatabaseManager {
 
     private static final AppDatabaseManager INSTANCE = new AppDatabaseManager();
 
+    private final Path databaseDirectory;
+
     private Connection abbreviationConnection;
     private Connection historyConnection;
     private Connection referenceConnection;
     private Connection authConnection;
 
     private AppDatabaseManager() {
-        // singleton
+        this(null);
+    }
+
+    /** Creates a manager rooted at an explicit directory, primarily for isolated tests. */
+    public AppDatabaseManager(Path databaseDirectory) {
+        this.databaseDirectory = databaseDirectory == null
+                ? null
+                : databaseDirectory.toAbsolutePath().normalize();
     }
 
     public static AppDatabaseManager getInstance() {
@@ -75,7 +84,9 @@ public class AppDatabaseManager {
         } catch (ClassNotFoundException e) {
             throw new SQLException("SQLite driver not found", e);
         }
-        Path dbPath = DbPaths.resolveDbPath(dbFileName);
+        Path dbPath = databaseDirectory == null
+                ? DbPaths.resolveDbPath(dbFileName)
+                : databaseDirectory.resolve(dbFileName);
         try {
             Files.createDirectories(dbPath.getParent());
         } catch (Exception e) {

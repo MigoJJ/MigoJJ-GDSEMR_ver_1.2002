@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,8 +19,18 @@ import java.util.logging.Logger;
 public class JdbcHistoryRepository implements HistoryRepository {
 
     private static final Logger LOGGER = Logger.getLogger(JdbcHistoryRepository.class.getName());
+    private final AppDatabaseManager dbManager;
 
     public JdbcHistoryRepository() {
+        this(AppDatabaseManager.getInstance());
+    }
+
+    public JdbcHistoryRepository(Path dbFile) {
+        this(new AppDatabaseManager(dbFile.toAbsolutePath().normalize().getParent()));
+    }
+
+    public JdbcHistoryRepository(AppDatabaseManager dbManager) {
+        this.dbManager = dbManager;
         initializeDatabase();
     }
 
@@ -29,7 +40,7 @@ public class JdbcHistoryRepository implements HistoryRepository {
                      "category TEXT NOT NULL, " +
                      "name TEXT NOT NULL, " +
                      "UNIQUE(category, name))";
-        try (Connection conn = AppDatabaseManager.getInstance().getHistoryConnection();
+        try (Connection conn = dbManager.getHistoryConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
@@ -43,7 +54,7 @@ public class JdbcHistoryRepository implements HistoryRepository {
         List<String> results = new ArrayList<>();
         String sql = "SELECT name FROM conditions WHERE category = ? ORDER BY name";
         
-        try (Connection conn = AppDatabaseManager.getInstance().getHistoryConnection();
+        try (Connection conn = dbManager.getHistoryConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, category.name());
@@ -63,7 +74,7 @@ public class JdbcHistoryRepository implements HistoryRepository {
     public void addCondition(ConditionCategory category, String conditionName) {
         String sql = "INSERT OR IGNORE INTO conditions (category, name) VALUES (?, ?)";
         
-        try (Connection conn = AppDatabaseManager.getInstance().getHistoryConnection();
+        try (Connection conn = dbManager.getHistoryConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, category.name());
@@ -79,7 +90,7 @@ public class JdbcHistoryRepository implements HistoryRepository {
     @Override
     public void updateCondition(ConditionCategory category, String oldName, String newName) {
         String sql = "UPDATE conditions SET name = ? WHERE category = ? AND name = ?";
-        try (Connection conn = AppDatabaseManager.getInstance().getHistoryConnection();
+        try (Connection conn = dbManager.getHistoryConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, newName);
@@ -100,7 +111,7 @@ public class JdbcHistoryRepository implements HistoryRepository {
     @Override
     public void deleteCondition(ConditionCategory category, String conditionName) {
         String sql = "DELETE FROM conditions WHERE category = ? AND name = ?";
-        try (Connection conn = AppDatabaseManager.getInstance().getHistoryConnection();
+        try (Connection conn = dbManager.getHistoryConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, category.name());

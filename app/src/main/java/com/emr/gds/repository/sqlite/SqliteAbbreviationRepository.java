@@ -15,7 +15,15 @@ import java.util.Map;
  */
 public class SqliteAbbreviationRepository implements AbbreviationRepository {
 
-    private final AppDatabaseManager dbManager = AppDatabaseManager.getInstance();
+    private final AppDatabaseManager dbManager;
+
+    public SqliteAbbreviationRepository() {
+        this(AppDatabaseManager.getInstance());
+    }
+
+    public SqliteAbbreviationRepository(AppDatabaseManager dbManager) {
+        this.dbManager = dbManager;
+    }
 
     @Override
     public Map<String, String> findAll() throws SQLException {

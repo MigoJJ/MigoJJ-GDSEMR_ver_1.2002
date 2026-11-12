@@ -2,6 +2,7 @@ package com.emr.gds.core.auth;
 
 import com.emr.gds.core.db.AppDatabaseManager;
 
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,8 +15,18 @@ public class SqliteCredentialRepository implements CredentialRepository {
 
     private static final Logger LOGGER = Logger.getLogger(SqliteCredentialRepository.class.getName());
     private static final int SINGLETON_ROW_ID = 1;
+    private final AppDatabaseManager dbManager;
 
     public SqliteCredentialRepository() {
+        this(AppDatabaseManager.getInstance());
+    }
+
+    public SqliteCredentialRepository(Path dbFile) {
+        this(new AppDatabaseManager(dbFile.toAbsolutePath().normalize().getParent()));
+    }
+
+    public SqliteCredentialRepository(AppDatabaseManager dbManager) {
+        this.dbManager = dbManager;
         initializeDatabase();
     }
 
@@ -23,7 +34,7 @@ public class SqliteCredentialRepository implements CredentialRepository {
         String sql = "CREATE TABLE IF NOT EXISTS credential (" +
                      "id INTEGER PRIMARY KEY, " +
                      "password_hash TEXT NOT NULL)";
-        try (Connection conn = AppDatabaseManager.getInstance().getAuthConnection();
+        try (Connection conn = dbManager.getAuthConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
@@ -35,7 +46,7 @@ public class SqliteCredentialRepository implements CredentialRepository {
     @Override
     public boolean hasCredential() {
         String sql = "SELECT 1 FROM credential WHERE id = ?";
-        try (Connection conn = AppDatabaseManager.getInstance().getAuthConnection();
+        try (Connection conn = dbManager.getAuthConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, SINGLETON_ROW_ID);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -52,7 +63,7 @@ public class SqliteCredentialRepository implements CredentialRepository {
         String hash = PasswordHasher.hash(password);
         String sql = "INSERT INTO credential (id, password_hash) VALUES (?, ?) " +
                      "ON CONFLICT(id) DO UPDATE SET password_hash = excluded.password_hash";
-        try (Connection conn = AppDatabaseManager.getInstance().getAuthConnection();
+        try (Connection conn = dbManager.getAuthConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, SINGLETON_ROW_ID);
             pstmt.setString(2, hash);
@@ -66,7 +77,7 @@ public class SqliteCredentialRepository implements CredentialRepository {
     @Override
     public boolean verifyPassword(char[] password) {
         String sql = "SELECT password_hash FROM credential WHERE id = ?";
-        try (Connection conn = AppDatabaseManager.getInstance().getAuthConnection();
+        try (Connection conn = dbManager.getAuthConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, SINGLETON_ROW_ID);
             try (ResultSet rs = pstmt.executeQuery()) {
