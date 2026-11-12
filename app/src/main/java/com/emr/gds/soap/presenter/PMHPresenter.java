@@ -158,10 +158,15 @@ public class PMHPresenter {
 
         String originalText = pmhView.getOutputArea().getText();
         pmhView.getOutputArea().setText(I18N.get("pmh.copy.copied_to_clipboard") + "\n\n" + originalText);
-        new Timer().schedule(new TimerTask() {
+        Timer restoreTimer = new Timer("pmh-clipboard-restore", true);
+        restoreTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Platform.runLater(() -> pmhView.getOutputArea().setText(originalText));
+                try {
+                    Platform.runLater(() -> pmhView.getOutputArea().setText(originalText));
+                } finally {
+                    restoreTimer.cancel();
+                }
             }
         }, 2000);
     }
