@@ -35,6 +35,10 @@ tasks.withType<Test> {
     }
 }
 
+tasks.withType<JavaCompile> {
+    options.compilerArgs.addAll(listOf("-Xlint:deprecation", "-Xlint:unchecked"))
+}
+
 tasks.withType<JavaExec> {
     val envDisplay = System.getenv("DISPLAY")
     if (envDisplay.isNullOrBlank()) {
