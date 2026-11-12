@@ -46,7 +46,7 @@ public class KCDDatabaseManagerJavaFX {
     public TextField getSearchField() { return searchField; }
     public ComboBox<String> getSearchColumnCombo() { return searchColumnCombo; }
 
-    private final KcdRepository repository = new JdbcKcdRepository();
+    private final KcdRepository repository;
     private static final DateTimeFormatter ISO_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private TableView<KCDRecord> table;
@@ -58,6 +58,14 @@ public class KCDDatabaseManagerJavaFX {
 
     private final String[] columnNames = {"Classification", "Disease Code", "Check Field", "Korean Name", "English Name", "Note"};
     private final double[] columnWidths = {100, 100, 80, 250, 250, 300};
+
+    public KCDDatabaseManagerJavaFX() {
+        this(new JdbcKcdRepository());
+    }
+
+    public KCDDatabaseManagerJavaFX(KcdRepository repository) {
+        this.repository = repository;
+    }
 
     public void start(Stage primaryStage) {
         Parent root = createView(primaryStage);

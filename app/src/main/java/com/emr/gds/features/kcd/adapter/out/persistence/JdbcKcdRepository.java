@@ -3,6 +3,8 @@ package com.emr.gds.features.kcd.adapter.out.persistence;
 import com.emr.gds.features.kcd.domain.KCDRecord;
 import com.emr.gds.features.kcd.domain.KcdRepository;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,10 +22,19 @@ import java.util.List;
 public class JdbcKcdRepository implements KcdRepository {
 
     private static final String DB_PATH = "src/main/resources/database/kcd_database.db";
-    private static final String JDBC_URL = "jdbc:sqlite:" + DB_PATH;
+    private final Path dbPath;
 
-    private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(JDBC_URL);
+    public JdbcKcdRepository() {
+        this(Paths.get(DB_PATH));
+    }
+
+    /** Creates a repository backed by an explicit SQLite file, primarily for isolated tests. */
+    public JdbcKcdRepository(Path dbPath) {
+        this.dbPath = dbPath.toAbsolutePath().normalize();
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:sqlite:" + dbPath);
     }
 
     @Override
