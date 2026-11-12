@@ -4,6 +4,7 @@ import com.emr.gds.core.db.DbPaths;
 import com.emr.gds.features.clinicalLab.domain.ClinicalLabItem;
 import com.emr.gds.features.clinicalLab.domain.ClinicalLabRepository;
 
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,19 +13,24 @@ public class JdbcClinicalLabRepository implements ClinicalLabRepository {
 
     private static final String DEFAULT_DB_FILE_NAME = "ClinicalLabItemsSqlite3.db";
 
-    private final String dbFileName;
+    private final Path dbFile;
 
     public JdbcClinicalLabRepository() {
-        this(DEFAULT_DB_FILE_NAME);
+        this(DbPaths.resolveDbPath(DEFAULT_DB_FILE_NAME));
     }
 
     public JdbcClinicalLabRepository(String dbFileName) {
-        this.dbFileName = dbFileName;
+        this(DbPaths.resolveDbPath(dbFileName));
+    }
+
+    /** Creates a repository backed by an explicit SQLite file, primarily for isolated tests. */
+    public JdbcClinicalLabRepository(Path dbFile) {
+        this.dbFile = dbFile.toAbsolutePath().normalize();
         initializeDatabase();
     }
 
     private String getDbUrl() {
-        return DbPaths.jdbcUrl(dbFileName);
+        return "jdbc:sqlite:" + dbFile;
     }
 
     private void initializeDatabase() {

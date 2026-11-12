@@ -3,6 +3,7 @@ package com.emr.gds.features.medication.adapter.out.persistence;
 import com.emr.gds.core.db.DbPaths;
 import com.emr.gds.features.medication.domain.MedicationGroup;
 import com.emr.gds.features.medication.domain.MedicationItem;
+import java.nio.file.Path;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Logger;
@@ -10,23 +11,28 @@ import java.util.logging.Logger;
 public class MedicationDatabaseManager {
     private static final Logger LOGGER = Logger.getLogger(MedicationDatabaseManager.class.getName());
     private static final String DEFAULT_DB_FILENAME = "med_data.db";
-    private final String dbFileName;
+    private final Path dbFile;
     
     private boolean pendingChanges = false;
     private Map<String, List<MedicationGroup>> cachedData = null;
     private List<String> cachedCategories = null;
 
     public MedicationDatabaseManager() {
-        this(DEFAULT_DB_FILENAME);
+        this(DbPaths.resolveDbPath(DEFAULT_DB_FILENAME));
     }
 
     public MedicationDatabaseManager(String dbFileName) {
-        this.dbFileName = dbFileName;
+        this(DbPaths.resolveDbPath(dbFileName));
+    }
+
+    /** Creates a manager backed by an explicit SQLite file, primarily for isolated tests. */
+    public MedicationDatabaseManager(Path dbFile) {
+        this.dbFile = dbFile.toAbsolutePath().normalize();
         initializeDatabase();
     }
 
     private String getConnectionString() {
-        return DbPaths.jdbcUrl(dbFileName);
+        return "jdbc:sqlite:" + dbFile;
     }
 
     private void initializeDatabase() {

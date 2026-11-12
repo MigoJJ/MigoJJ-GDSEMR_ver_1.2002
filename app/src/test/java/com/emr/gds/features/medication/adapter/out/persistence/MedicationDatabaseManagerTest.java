@@ -2,11 +2,9 @@ package com.emr.gds.features.medication.adapter.out.persistence;
 
 import com.emr.gds.features.medication.domain.MedicationGroup;
 import com.emr.gds.features.medication.domain.MedicationItem;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import java.io.File;
+import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -14,25 +12,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MedicationDatabaseManagerTest {
 
-    private static final String TEST_DB_FILE = "test_med_data.db";
-
-    @AfterEach
-    void tearDown() {
-        // Best effort cleanup
-        File file = new File("app/db/" + TEST_DB_FILE);
-        if (file.exists()) file.delete();
-        
-        File fileLocal = new File("db/" + TEST_DB_FILE);
-        if (fileLocal.exists()) fileLocal.delete();
-
-        File fileRoot = new File(TEST_DB_FILE);
-        if (fileRoot.exists()) fileRoot.delete();
-    }
+    @TempDir
+    Path tempDir;
 
     @Test
     void testPersistence() {
         // 1. Initial Load with TEST file
-        MedicationDatabaseManager db1 = new MedicationDatabaseManager(TEST_DB_FILE);
+        Path testDb = tempDir.resolve("med_data.db");
+        MedicationDatabaseManager db1 = new MedicationDatabaseManager(testDb);
         db1.createTables(); // Ensure tables exist
         
         // Seed Data since we don't load from XML anymore
@@ -60,7 +47,7 @@ class MedicationDatabaseManagerTest {
         assertFalse(db1.hasPendingChanges(), "Should not have pending changes after commit");
         
         // 4. Reload (Simulate App Restart)
-        MedicationDatabaseManager db2 = new MedicationDatabaseManager(TEST_DB_FILE);
+        MedicationDatabaseManager db2 = new MedicationDatabaseManager(testDb);
         Map<String, List<MedicationGroup>> data2 = db2.getMedicationData();
         
         // 5. Verify
