@@ -1,5 +1,7 @@
 package com.emr.gds.features.clinicalLab.adapter.in.ui;
 
+import com.emr.gds.features.clinicalLab.adapter.out.persistence.JdbcClinicalLabRepository;
+import com.emr.gds.features.clinicalLab.domain.ClinicalLabItem;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,9 +11,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,9 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Drives the real clinicalLab FXML scene through TestFX rather than a
  * throwaway harness Application, replacing the manual verification step
  * described in docs/architecture.md § "Verifying UI changes" for this
- * feature. Read-only against the real seed database (app/db/ClinicalLabItemsSqlite3.db) —
- * no inserts/updates/deletes here, see JdbcClinicalLabRepositoryTest for
- * that against an isolated test database file.
+ * feature. Uses only a synthetic database under {@link TempDir}; the
+ * production seed database is never opened by this test.
  *
  * Deliberately uses {@code FxRobot.interact(Runnable)} (runs directly on the
  * FX Application Thread) rather than {@code clickOn}/{@code write}/{@code type}
@@ -38,12 +42,30 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(ApplicationExtension.class)
 class ClinicalLabControllerUiTest {
 
+    @TempDir
+    Path tempDir;
+
     private TableView<?> labTable;
     private TextField searchField;
 
     @Start
     private void start(Stage stage) throws Exception {
+        JdbcClinicalLabRepository repository = new JdbcClinicalLabRepository(tempDir.resolve("clinical_lab.db"));
+        repository.insertItem(new ClinicalLabItem(0, "Chemistry", "Synthetic Glucose", "mg/dL",
+                70.0, 100.0, 70.0, 100.0, "70-100", "70-100", "GLU", "synthetic"));
+        repository.insertItem(new ClinicalLabItem(0, "Hematology", "Synthetic Hemoglobin", "g/dL",
+                12.0, 18.0, 12.0, 18.0, "12-18", "12-18", "HGB", "synthetic"));
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/emr/gds/features/clinicalLab/main.fxml"));
+        loader.setControllerFactory(type -> {
+            if (type == ClinicalLabController.class) {
+                return new ClinicalLabController(repository);
+            }
+            try {
+                return type.getDeclaredConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
+                throw new IllegalStateException("Unable to create FXML controller " + type, e);
+            }
+        });
         Parent root = loader.load();
         Scene scene = new Scene(root);
         stage.setScene(scene);
@@ -54,9 +76,9 @@ class ClinicalLabControllerUiTest {
     }
 
     @Test
-    void loadsRealDataOnStartup() {
+    void loadsSyntheticDataOnStartup() {
         assertNotNull(labTable, "fx:id lookup should resolve, confirming the fx:controller wiring is correct");
-        assertFalse(labTable.getItems().isEmpty(), "Table should load real rows from the seed database");
+        assertFalse(labTable.getItems().isEmpty(), "Table should load synthetic rows from the isolated database");
     }
 
     @Test
@@ -68,7 +90,7 @@ class ClinicalLabControllerUiTest {
             searchField.getOnAction().handle(new ActionEvent());
         });
 
-        assertFalse(labTable.getItems().isEmpty(), "Expected at least one glucose-related test in the seed data");
+        assertFalse(labTable.getItems().isEmpty(), "Expected the synthetic glucose test");
         assertTrue(labTable.getItems().size() < totalRows, "Search should narrow the result set");
 
         robot.interact(() -> {

@@ -52,9 +52,17 @@ public class ClinicalLabController implements Initializable {
     @FXML private Button cancelButton;
 
 
-    private final ClinicalLabRepository database = new JdbcClinicalLabRepository();
+    private final ClinicalLabRepository database;
     private final ObservableList<ClinicalLabItem> masterData = FXCollections.observableArrayList();
     private final ObservableList<String> selectedItems = FXCollections.observableArrayList();
+
+    public ClinicalLabController() {
+        this(new JdbcClinicalLabRepository());
+    }
+
+    public ClinicalLabController(ClinicalLabRepository database) {
+        this.database = database;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
